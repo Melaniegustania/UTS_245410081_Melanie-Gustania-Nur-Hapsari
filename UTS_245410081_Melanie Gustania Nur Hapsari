@@ -1,0 +1,32 @@
+1. Jelaskan teorema CAP dan BASE dan keterkaitan keduanya. Jelaskan menggunakan contoh yang pernah anda gunakan.
+-CAP (Consistence — Availability — Partition tolerance)
+a. Consistency (C): Semua node melihat data yang sama pada waktu yang sama — operasi baca setelah penulisan mengembalikan nilai terbaru.
+b. Availability (A): Setiap permintaan non-failing ke node menghasilkan respon (bukan error), walaupun mungkin bukan nilai paling baru.
+c. Partition tolerance (P): Sistem tetap beroperasi walau ada pemisahan (network partition) antara subset node.
+Teorema: Untuk sistem terdistribusi yang mengalami partisi jaringan (P), Anda hanya bisa memilih antara konsistensi atau ketersediaan 
+jadi praktis saat P terjadi, harus memilih C atau A (bukan keduanya). 
+Jika tidak ada partisi, Anda bisa mendapatkan C dan A, tetapi partisi jaringan selalu mungkin; karenanya pilihan itu nyata.
+Contoh nyata (yang sering digunakan):
+a. Sistem Bank (transfer antar rekening): memilih C over A. Jika ada pemisahan jaringan, sistem bisa menolak transaksi (unavailable) 
+   demi menjaga konsistensi (mis. mencegah double-spend).
+b. Sosial Media (feed posting, likes): sering memilih A over C. Saat ada partisi, sistem masih menerima posting/like dan mereplikasi lazimnya (eventual consistency). 
+   Pengguna masih bisa berinteraksi walaupun data mungkin sedikit tidak sinkron sesaat.
+-BASE (Basically Available, Soft state, Eventual consistency)
+BASE adalah filosofi desain untuk sistem yang memilih Availability (A) dan Partition tolerance (P) — yaitu tidak menuntut konsistensi kuat pada setiap saat:
+Basically Available: sistem menjamin ketersediaan minimal (respon terhadap request).
+Soft state: keadaan internal sistem bisa berubah tanpa input baru (mis. due to replikasi yang sedang berlangsung).
+Eventual consistency: jika tidak ada mutasi lebih lanjut, semua replica akan konvergen menjadi keadaan yang sama pada akhirnya.
+Kaitan CAP ↔ BASE:
+a. BASE adalah praktik/pendekatan untuk sistem yang memilih A dalam trade-off CAP (terutama ketika P ada). Jadi:
+b. CAP menyatakan trade-off teoritis (C/A/P).
+BASE menjelaskan bagaimana merancang sistem yang memprioritaskan Availability dan masih masuk akal: menerima sementara inkonsistensi, 
+lalu mengandalkan replikasi / resolusi konflik untuk mencapai consistency akhirnya (eventual).
+2. Jelaskan keterkaitan antara GraphQL dengan komunikasi antar proses pada sistem terdistribusi. Buat diagramnya.
+- GraphQL adalah query language untuk API yang memberi klien kemampuan meminta persis data yang dibutuhkan.
+  Pada lapisan arsitektur, GraphQL sering dipasang sebagai gateway / API layer di atas banyak layanan mikro (microservices).
+-Dalam sistem terdistribusi, GraphQL melakukan orchestration: menerima satu query dari klien -> mem-breakdown menjadi banyak panggilan 
+ antar-proses (HTTP/GRPC/DB calls) ke microservices -> mengagregasi hasil -> mengembalikan response tunggal kepada klien.
+-Jadi GraphQL bukan protokol IPC sendiri, tetapi memfasilitasi komunikasi antar-proses (IPC) melalui:
+ a. Resolver yang memanggil service backend (via HTTP, gRPC, message bus, dsb).
+ b. Batching dan DataLoader untuk mengurangi round-trip dan mencegah N+1 problem (efisiensi IPC).
+ c. Schema stitching / federation untuk menggabungkan banyak layanan menjadi satu graph.
