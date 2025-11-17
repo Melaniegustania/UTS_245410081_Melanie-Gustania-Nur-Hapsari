@@ -1,23 +1,18 @@
+```mermaid
 flowchart LR
-  Client["Client (mobile/web)"]
-  GQL["GraphQL Gateway"]
-  subgraph Backend [Microservices / Resources]
-    Auth["Auth Service"]
-    Users["User Service"]
-    Posts["Posts Service"]
-    Comments["Comments Service"]
-    DB["Databases / Storage"]
-    Cache["Cache / DataLoader"]
-  end
+    Client["Client (Mobile/Web)"]
+    GQL["GraphQL Gateway / API Server"]
 
-  Client -->|GraphQL Query| GQL
-  GQL -->|auth check| Auth
-  GQL -->|batch user ids| Users
-  GQL -->|fetch posts| Posts
-  GQL -->|fetch comments| Comments
-  Posts -.->|reads/writes| DB
-  Users -.->|reads/writes| DB
-  Comments -.->|reads/writes| DB
-  GQL -->|use dataloader| Cache
-  Cache --> Users
-  Cache --> Posts
+    subgraph Microservices
+        Auth["Auth Service"]
+        User["User Service"]
+        Post["Posts Service"]
+        Comment["Comments Service"]
+    end
+
+    Client -->|GraphQL Query| GQL
+    GQL --> Auth
+    GQL --> User
+    GQL --> Post
+    GQL --> Comment
+```
